@@ -47,7 +47,7 @@ pub struct Task {
 }
 
 #[derive(Debug, Deserialize, Validate)]
-pub struct Createtask {
+pub struct CreateTask {
     #[validate(length(min = 1, max = 255))]
     pub title: String,
 
