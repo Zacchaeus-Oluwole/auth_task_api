@@ -57,12 +57,13 @@ async fn auth_middleware(
 
 impl <S> FromRequestParts<S> for AuthenticatedUser
 where
-    S: Send + Sync {
+    S: Send + Sync + Clone
+     {
         type Rejection = StatusCode;
 
         async fn from_request_parts(
             parts: &mut Parts,
-            state: &S,
+            _state: &S,
         ) -> Result<Self, Self::Rejection>
         {
             parts.extensions
@@ -95,9 +96,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .route("/login", post(auth::login))
         .route("/tasks", post(tasks::create_task))
         .route("/tasks", get(tasks::list_tasks))
-        .route("/tasks/:id", get(tasks::get_task))
-        .route("/tasks/:id", put(tasks::update_task))
-        .route("/tasks/:id", delete(tasks::delete_task))
+        .route("/tasks/{id}", get(tasks::get_task))
+        .route("/tasks/{id}", put(tasks::update_task))
+        .route("/tasks/{id}", delete(tasks::delete_task))
         .layer(axum::middleware::from_fn(auth_middleware))
         .layer(CorsLayer::permissive())
         .layer(TraceLayer::new_for_http())

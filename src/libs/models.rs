@@ -64,7 +64,7 @@ pub struct UpdateTask {
     pub status: Option<String>,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Clone)]
 pub struct AuthenticatedUser {
     pub user_id: Uuid,
     pub role: String,
