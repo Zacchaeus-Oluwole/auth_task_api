@@ -53,6 +53,20 @@ pub async fn get_task(
     Ok(Json(task))
 }
 
+pub async fn list_tasks(
+    State(pool): State<PgPool>,
+    user: AuthenticatedUser,
+) -> AppResult<Json<Vec<Task>>> {
+    let tasks = sqlx::query_as::<_, Task>(
+        "SELECT * FROM tasks WHERE user_id = $1 ORDER BY created_at DESC"
+    )
+    .bind(user.user_id)
+    .fetch_all(&pool)
+    .await?;
+
+    Ok(Json(tasks))
+}
+
 
 pub async fn update_task(
     State(pool): State<PgPool>,
