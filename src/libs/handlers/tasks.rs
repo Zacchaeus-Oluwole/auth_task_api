@@ -37,7 +37,7 @@ pub async fn get_task(
     user: AuthenticatedUser,
 ) -> AppResult<Json<Task>>{
     let task = sqlx::query_as::<_, Task>(
-        "SELECT * FROM tasts WHERE id = $1 AND user_id = $2"
+        "SELECT * FROM tasks WHERE id = $1 AND user_id = $2"
     )
     .bind(id)
     .bind(user.user_id)

@@ -14,7 +14,7 @@ pub async fn register (
     payload.validate()?;
     
     let existing = sqlx::query_scalar::<_, bool>(
-        "SELECT EXISTS(SELECT 1 FROM users WHERE email = $1"
+        "SELECT EXISTS(SELECT 1 FROM users WHERE email = $1)"
     )
     .bind(&payload.email)
     .fetch_one(&pool)
@@ -30,12 +30,15 @@ pub async fn register (
         .map_err(|_| AppError::Unauthorized("Password hashing failed".to_string()))?;
 
     let user = sqlx::query_as::<_, User> (
-            "INSERT INTO users (email, password_hash, role) VALUES ($1, $2, $3) RETURNING *"
+            "INSERT INTO users (email, password_hash, role) VALUES ($1, $2, 'user') RETURNING *"
         )
         .bind(&payload.email)
         .bind(&password_hash)
         .fetch_one(&pool)
-        .await?;
+        .await
+        .map_err(
+            |_| AppError::Forbidden("Database error".to_string())
+        )?;
 
 
 
