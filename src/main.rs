@@ -91,15 +91,20 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let pool = libs::db::create_pool().await?;
 
-    let app = Router::new()
+    let public = Router::new()
         .route("/register", post(auth::register))
-        .route("/login", post(auth::login))
-        .route("/tasks", post(tasks::create_task))
-        .route("/tasks", get(tasks::list_tasks))
-        .route("/tasks/{id}", get(tasks::get_task))
-        .route("/tasks/{id}", put(tasks::update_task))
-        .route("/tasks/{id}", delete(tasks::delete_task))
-        .layer(axum::middleware::from_fn(auth_middleware))
+        .route("/login", post(auth::login));
+
+    let protected = Router::new()
+        .route("/tasks", post(tasks::create_task).get(tasks::list_tasks))
+        .route("/tasks/{id}", get(tasks::get_task)
+            .put(tasks::update_task)
+            .delete(tasks::delete_task))
+        .route_layer(axum::middleware::from_fn(auth_middleware)); // guards only these
+
+    let app = Router::new()
+        .merge(public)
+        .merge(protected)
         .layer(CorsLayer::permissive())
         .layer(TraceLayer::new_for_http())
         .with_state(pool);

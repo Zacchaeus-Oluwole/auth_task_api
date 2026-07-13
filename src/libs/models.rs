@@ -67,5 +67,6 @@ pub struct UpdateTask {
 #[derive(Clone)]
 pub struct AuthenticatedUser {
     pub user_id: Uuid,
+    #[allow(dead_code)]
     pub role: String,
 }
